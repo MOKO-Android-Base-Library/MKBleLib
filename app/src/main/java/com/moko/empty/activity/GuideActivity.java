@@ -13,7 +13,7 @@ import android.provider.Settings;
 import com.elvishew.xlog.XLog;
 import com.moko.empty.R;
 import com.moko.empty.databinding.ActivityGuideBinding;
-import com.moko.empty.dialog.PermissionDialog;
+import com.moko.lib.loraui.dialog.PermissionDialog;
 import com.moko.empty.utils.Utils;
 import com.permissionx.guolindev.PermissionX;
 

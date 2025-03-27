@@ -8,8 +8,8 @@ import android.os.Bundle;
 import android.os.SystemClock;
 
 import com.elvishew.xlog.XLog;
-import com.moko.empty.dialog.LoadingDialog;
-import com.moko.empty.dialog.LoadingMessageDialog;
+import com.moko.lib.loraui.dialog.LoadingDialog;
+import com.moko.lib.loraui.dialog.LoadingMessageDialog;
 import com.moko.empty.event.ExitEvent;
 
 import org.greenrobot.eventbus.EventBus;

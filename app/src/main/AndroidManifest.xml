@@ -6,8 +6,7 @@
         android:allowBackup="true"
         android:hardwareAccelerated="false"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@style/LaunchActivityTheme">
+        android:label="@string/app_name">
 
         <activity android:name="com.moko.empty.activity.GuideActivity"
             android:exported="true">

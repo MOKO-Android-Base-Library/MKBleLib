@@ -9,7 +9,7 @@ import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.empty.AppConstants;
 import com.moko.empty.R;
 import com.moko.empty.databinding.ActivityMainBinding;
-import com.moko.empty.dialog.AlertMessageDialog;
+import com.moko.lib.loraui.dialog.AlertMessageDialog;
 import com.moko.support.empty.EmptyMokoSupport;
 import com.moko.support.empty.callback.MokoScanDeviceCallback;
 import com.moko.support.empty.entity.DeviceInfo;

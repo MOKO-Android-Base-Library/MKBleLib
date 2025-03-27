@@ -31,12 +31,7 @@ android {
 
 dependencies {
 //    api fileTree(include: ['*.jar'], dir: 'libs')
-    implementation project(path: ':mokoBleLib')
-    api 'no.nordicsemi.android.support.v18:scanner:1.6.0'
-    api 'no.nordicsemi.android:dfu:2.4.1'
-    api 'org.greenrobot:eventbus:3.3.1'
-    api 'com.elvishew:xlog:1.6.1'
-    implementation 'no.nordicsemi.android:ble:2.7.3'
+    api project(path: ':mokoBleLib')
     implementation 'androidx.appcompat:appcompat:1.6.1'
 }
 

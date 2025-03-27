@@ -1,4 +1,7 @@
-apply plugin: 'com.android.library'
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
 
 android {
     namespace "com.moko.ble.lib"
@@ -7,8 +10,8 @@ android {
     defaultConfig {
         minSdk 26
         targetSdk 34
-        versionCode 4
-        versionName "4.0"
+        versionCode 1
+        versionName "1.0.0"
     }
 
     buildTypes {
@@ -22,16 +25,47 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    android {
-        lintOptions {
-            abortOnError false
+    lintOptions {
+        abortOnError false
+    }
+
+    // 声明发布 release 变体
+    publishing {
+        singleVariant('release') {
+            withSourcesJar() // 可选：与源码包 Task 合并
+        }
+    }
+}
+
+publishing {
+    repositories {
+        mavenLocal()
+    }
+
+    // publications 用于定义发布任务的配置块
+    publications {
+        // 这个 aarAndroid 可以随便填，只是一个任务名字而已
+        // MavenPublication必须有，这个是调用的任务类
+        aarAndroid(MavenPublication) {
+            // 这里头是artifacts的配置信息，不填会采用默认的
+            groupId = 'com.github.MOKO-Android-Base-Library'
+            artifactId = 'MKBleLib'
+            version = '1.0.0'
+
+            afterEvaluate {
+                // 使用 release 变体的组件（自动包含依赖信息）
+                from components.release
+            }
         }
     }
 }
 
 dependencies {
-    api 'com.elvishew:xlog:1.6.1'
+    api 'no.nordicsemi.android.support.v18:scanner:1.6.0'
+    api 'no.nordicsemi.android:dfu:2.4.1'
     api 'no.nordicsemi.android:ble:2.7.3'
+    api 'org.greenrobot:eventbus:3.3.1'
+    api 'com.elvishew:xlog:1.6.1'
 }
 
 //修改jar名字+将指定jar生成的地方
