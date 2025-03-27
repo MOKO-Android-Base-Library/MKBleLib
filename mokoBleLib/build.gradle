@@ -1,0 +1,51 @@
+apply plugin: 'com.android.library'
+
+android {
+    namespace "com.moko.ble.lib"
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 26
+        targetSdk 34
+        versionCode 4
+        versionName "4.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    android {
+        lintOptions {
+            abortOnError false
+        }
+    }
+}
+
+dependencies {
+    api 'com.elvishew:xlog:1.6.1'
+    api 'no.nordicsemi.android:ble:2.7.3'
+}
+
+//修改jar名字+将指定jar生成的地方
+task makeJar(type: Copy) {
+    //如果之前存在，则先删除
+    delete 'build/libs/mokoBleLib.jar'
+    //设置拷贝的文件
+    from('build/intermediates/aar_main_jar/debug/')
+    //生成jar包后的文件目录位置
+    into('build/libs/')
+    //include,exclude参数来设置过滤
+    include('classes.jar')
+    //重命名
+    rename('classes.jar', 'mokoBleLib.jar')
+}
+
+makeJar.dependsOn(build)
