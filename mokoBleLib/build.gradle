@@ -11,7 +11,7 @@ android {
         minSdk 26
         targetSdk 34
         versionCode 1
-        versionName "1.0.0"
+        versionName "1.0.0-beacon"
     }
 
     buildTypes {
@@ -50,7 +50,7 @@ publishing {
             // 这里头是artifacts的配置信息，不填会采用默认的
             groupId = 'com.github.MOKO-Android-Base-Library'
             artifactId = 'MKBleLib'
-            version = '1.0.0'
+            version = '1.0.0-beacon'
 
             afterEvaluate {
                 // 使用 release 变体的组件（自动包含依赖信息）
@@ -62,10 +62,11 @@ publishing {
 
 dependencies {
     api 'no.nordicsemi.android.support.v18:scanner:1.6.0'
-    api 'no.nordicsemi.android:dfu:2.4.1'
     api 'no.nordicsemi.android:ble:2.7.3'
     api 'org.greenrobot:eventbus:3.3.1'
     api 'com.elvishew:xlog:1.6.1'
+    api 'com.google.code.gson:gson:2.10.1'
+    implementation 'androidx.appcompat:appcompat:1.0.0'
 }
 
 //修改jar名字+将指定jar生成的地方
