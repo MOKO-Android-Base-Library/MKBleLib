@@ -31,7 +31,8 @@ android {
 
 dependencies {
 //    api fileTree(include: ['*.jar'], dir: 'libs')
-    api project(path: ':mokoBleLib')
+//    api project(path: ':mokoBleLib')
+    api 'com.github.MOKO-Android-Base-Library:MKBleLib:v1.0.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
 }
 
