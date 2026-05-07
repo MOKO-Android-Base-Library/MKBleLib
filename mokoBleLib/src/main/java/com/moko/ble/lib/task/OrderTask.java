@@ -13,11 +13,12 @@ public abstract class OrderTask {
     public long delayTime = DEFAULT_DELAY_TIME;
     public int orderStatus;
 
-    public OrderTask(Enum orderCHAR, int responseType) {
+    public OrderTask(Enum orderCHAR, int responseType, String address) {
         response = new OrderTaskResponse();
         this.orderCHAR = orderCHAR;
         this.response.orderCHAR = orderCHAR;
         this.response.responseType = responseType;
+        this.response.address = address;
     }
 
     public abstract byte[] assemble();
