@@ -29,7 +29,6 @@ public abstract class MokoBleLib implements MokoResponseCallback {
     private final Map<String, BluetoothGatt> mGattMap = new HashMap<>();
     private final Map<String, BlockingQueue<OrderTask>> mQueueMap = new HashMap<>();
     private Context mContext;
-    private final Map<String, MokoBleManager> mBleManagerMap = new HashMap<>();
     private Handler mHandler;
 
     public MokoBleLib() {
@@ -45,9 +44,7 @@ public abstract class MokoBleLib implements MokoResponseCallback {
     }
 
     public void connDevice(@NonNull String address) {
-        if (null == mBleManagerMap.get(address)) {
-            mBleManagerMap.put(address, getMokoBleManager(address));
-        }
+        MokoBleManager mokoBleManager = getMokoBleManager(address);
         if (!isBluetoothOpen()) {
             XLog.i("connDevice: bluetooth close");
             return;
@@ -61,7 +58,6 @@ public abstract class MokoBleLib implements MokoResponseCallback {
         if (device != null) {
             mHandler.post(() -> {
                 XLog.i("start connect");
-                MokoBleManager mokoBleManager = mBleManagerMap.get(address);
                 assert null != mokoBleManager;
                 mokoBleManager.connect(device)
                         .retry(5, 200)
@@ -86,7 +82,7 @@ public abstract class MokoBleLib implements MokoResponseCallback {
     }
 
     public void disConnectBle(String address) {
-        MokoBleManager mokoBleManager = mBleManagerMap.get(address);
+        MokoBleManager mokoBleManager = getMokoBleManager(address);
         if (null == mokoBleManager) return;
         mokoBleManager.disconnect().enqueue();
     }
@@ -259,13 +255,6 @@ public abstract class MokoBleLib implements MokoResponseCallback {
         if (!orderNotify(device, characteristic, value)) {
             if (isSyncData()) {
                 BlockingQueue<OrderTask> mQueue = mQueueMap.get(device.getAddress());
-//                for (String key : mQueueMap.keySet()) {
-//                    BlockingQueue<OrderTask> mapValue = mQueueMap.get(key);
-//                    if (null != mapValue && !mapValue.isEmpty()) {
-//                        mQueue = mapValue;
-//                        break;
-//                    }
-//                }
                 assert null != mQueue;
                 OrderTask orderTask = mQueue.peek();
                 if (value != null
@@ -286,13 +275,6 @@ public abstract class MokoBleLib implements MokoResponseCallback {
             return;
         }
         BlockingQueue<OrderTask> mQueue = mQueueMap.get(device.getAddress());
-//        for (String key : mQueueMap.keySet()) {
-//            BlockingQueue<OrderTask> mapValue = mQueueMap.get(key);
-//            if (null != mapValue && !mapValue.isEmpty()) {
-//                mQueue = mapValue;
-//                break;
-//            }
-//        }
         assert null != mQueue;
         OrderTask orderTask = mQueue.peek();
         if (value != null
@@ -312,13 +294,6 @@ public abstract class MokoBleLib implements MokoResponseCallback {
             return;
         }
         BlockingQueue<OrderTask> mQueue = mQueueMap.get(device.getAddress());
-//        for (String key : mQueueMap.keySet()) {
-//            BlockingQueue<OrderTask> mapValue = mQueueMap.get(key);
-//            if (null != mapValue && !mapValue.isEmpty()) {
-//                mQueue = mapValue;
-//                break;
-//            }
-//        }
         assert null != mQueue;
         OrderTask orderTask = mQueue.peek();
         if (value != null
@@ -359,7 +334,6 @@ public abstract class MokoBleLib implements MokoResponseCallback {
 //        }
         XLog.i("disconnected reason:" + reason);
         mGattMap.remove(device.getAddress());
-        mBleManagerMap.remove(device.getAddress());
         onDeviceDisconnected(device);
     }
 

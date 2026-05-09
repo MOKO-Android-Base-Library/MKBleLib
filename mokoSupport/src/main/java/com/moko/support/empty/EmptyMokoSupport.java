@@ -55,8 +55,11 @@ public final class EmptyMokoSupport extends MokoBleLib {
 
     @Override
     public MokoBleManager getMokoBleManager(String address) {
-        MokoBleConfig bleConfig = new MokoBleConfig(mContext, this);
-        mBleConfigMap.putIfAbsent(address, bleConfig);
+        MokoBleConfig bleConfig = mBleConfigMap.get(address);
+        if (bleConfig == null) {
+            bleConfig = new MokoBleConfig(mContext, this);
+            mBleConfigMap.put(address, bleConfig);
+        }
         return bleConfig;
     }
 
@@ -75,6 +78,7 @@ public final class EmptyMokoSupport extends MokoBleLib {
 
     @Override
     public void onDeviceDisconnected(BluetoothDevice device) {
+        mBleConfigMap.remove(device.getAddress());
         mCharacteristicMap.remove(device.getAddress());
         ConnectStatusEvent connectStatusEvent = new ConnectStatusEvent();
         connectStatusEvent.setAction(MokoConstants.ACTION_DISCONNECTED);
