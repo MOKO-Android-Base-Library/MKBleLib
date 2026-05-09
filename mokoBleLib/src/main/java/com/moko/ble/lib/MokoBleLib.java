@@ -46,7 +46,7 @@ public abstract class MokoBleLib implements MokoResponseCallback {
 
     public void connDevice(@NonNull String address) {
         if (null == mBleManagerMap.get(address)) {
-            mBleManagerMap.put(address, getMokoBleManager());
+            mBleManagerMap.put(address, getMokoBleManager(address));
         }
         if (!isBluetoothOpen()) {
             XLog.i("connDevice: bluetooth close");
@@ -105,9 +105,7 @@ public abstract class MokoBleLib implements MokoResponseCallback {
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    //
-    ///////////////////////////////////////////////////////////////////////////
+    /// Send orderTask
 
     public void sendOrder(OrderTask... orderTasks) {
         if (orderTasks.length == 0) {
@@ -254,21 +252,20 @@ public abstract class MokoBleLib implements MokoResponseCallback {
         mHandler.postDelayed(timeoutRunner, orderTask.delayTime);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    //
-    ///////////////////////////////////////////////////////////////////////////
+    /// Callback result
+
     @Override
-    public void onCharacteristicChanged(BluetoothGattCharacteristic characteristic, byte[] value) {
-        if (!orderNotify(characteristic, value)) {
+    public void onCharacteristicChanged(BluetoothDevice device, BluetoothGattCharacteristic characteristic, byte[] value) {
+        if (!orderNotify(device, characteristic, value)) {
             if (isSyncData()) {
-                BlockingQueue<OrderTask> mQueue = null;
-                for (String key : mQueueMap.keySet()) {
-                    BlockingQueue<OrderTask> mapValue = mQueueMap.get(key);
-                    if (null != mapValue && !mapValue.isEmpty()) {
-                        mQueue = mapValue;
-                        break;
-                    }
-                }
+                BlockingQueue<OrderTask> mQueue = mQueueMap.get(device.getAddress());
+//                for (String key : mQueueMap.keySet()) {
+//                    BlockingQueue<OrderTask> mapValue = mQueueMap.get(key);
+//                    if (null != mapValue && !mapValue.isEmpty()) {
+//                        mQueue = mapValue;
+//                        break;
+//                    }
+//                }
                 assert null != mQueue;
                 OrderTask orderTask = mQueue.peek();
                 if (value != null
@@ -284,18 +281,18 @@ public abstract class MokoBleLib implements MokoResponseCallback {
     }
 
     @Override
-    public void onCharacteristicWrite(BluetoothGattCharacteristic characteristic, byte[] value) {
+    public void onCharacteristicWrite(BluetoothDevice device, BluetoothGattCharacteristic characteristic, byte[] value) {
         if (!isSyncData()) {
             return;
         }
-        BlockingQueue<OrderTask> mQueue = null;
-        for (String key : mQueueMap.keySet()) {
-            BlockingQueue<OrderTask> mapValue = mQueueMap.get(key);
-            if (null != mapValue && !mapValue.isEmpty()) {
-                mQueue = mapValue;
-                break;
-            }
-        }
+        BlockingQueue<OrderTask> mQueue = mQueueMap.get(device.getAddress());
+//        for (String key : mQueueMap.keySet()) {
+//            BlockingQueue<OrderTask> mapValue = mQueueMap.get(key);
+//            if (null != mapValue && !mapValue.isEmpty()) {
+//                mQueue = mapValue;
+//                break;
+//            }
+//        }
         assert null != mQueue;
         OrderTask orderTask = mQueue.peek();
         if (value != null
@@ -310,18 +307,18 @@ public abstract class MokoBleLib implements MokoResponseCallback {
     }
 
     @Override
-    public void onCharacteristicRead(BluetoothGattCharacteristic characteristic, byte[] value) {
+    public void onCharacteristicRead(BluetoothDevice device, BluetoothGattCharacteristic characteristic, byte[] value) {
         if (!isSyncData()) {
             return;
         }
-        BlockingQueue<OrderTask> mQueue = null;
-        for (String key : mQueueMap.keySet()) {
-            BlockingQueue<OrderTask> mapValue = mQueueMap.get(key);
-            if (null != mapValue && !mapValue.isEmpty()) {
-                mQueue = mapValue;
-                break;
-            }
-        }
+        BlockingQueue<OrderTask> mQueue = mQueueMap.get(device.getAddress());
+//        for (String key : mQueueMap.keySet()) {
+//            BlockingQueue<OrderTask> mapValue = mQueueMap.get(key);
+//            if (null != mapValue && !mapValue.isEmpty()) {
+//                mQueue = mapValue;
+//                break;
+//            }
+//        }
         assert null != mQueue;
         OrderTask orderTask = mQueue.peek();
         if (value != null
@@ -344,9 +341,7 @@ public abstract class MokoBleLib implements MokoResponseCallback {
         orderResult(task.response);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    //
-    ///////////////////////////////////////////////////////////////////////////
+    /// Callback connect result
 
     @Override
     public void onServicesDiscovered(BluetoothGatt gatt) {
@@ -369,7 +364,7 @@ public abstract class MokoBleLib implements MokoResponseCallback {
     }
 
 
-    public abstract MokoBleManager getMokoBleManager();
+    public abstract MokoBleManager getMokoBleManager(String address);
 
     public abstract void onDeviceConnected(BluetoothGatt gatt);
 
@@ -385,7 +380,7 @@ public abstract class MokoBleLib implements MokoResponseCallback {
 
     public abstract void orderResult(OrderTaskResponse response);
 
-    public abstract boolean orderNotify(BluetoothGattCharacteristic characteristic, byte[] value);
+    public abstract boolean orderNotify(BluetoothDevice device, BluetoothGattCharacteristic characteristic, byte[] value);
 
     public abstract boolean orderResponseValid(BluetoothGattCharacteristic characteristic, OrderTask orderTask);
 }

@@ -18,16 +18,19 @@ import com.moko.support.empty.handler.MokoCharacteristicHandler;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public final class EmptyMokoSupport extends MokoBleLib {
-
-    private HashMap<OrderCHAR, BluetoothGattCharacteristic> mCharacteristicMap;
+    private Map<String, Map<OrderCHAR, BluetoothGattCharacteristic>> mCharacteristicMap = new LinkedHashMap<>();
 
     private static volatile EmptyMokoSupport INSTANCE;
 
     private Context mContext;
+
+    private Map<String, MokoBleConfig> mBleConfigMap = new LinkedHashMap<>();
 
 
     private EmptyMokoSupport() {
@@ -51,43 +54,49 @@ public final class EmptyMokoSupport extends MokoBleLib {
     }
 
     @Override
-    public MokoBleManager getMokoBleManager() {
-        MokoBleConfig config = new MokoBleConfig(mContext, this);
-        return config;
+    public MokoBleManager getMokoBleManager(String address) {
+        MokoBleConfig bleConfig = new MokoBleConfig(mContext, this);
+        mBleConfigMap.putIfAbsent(address, bleConfig);
+        return bleConfig;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // connect
-    ///////////////////////////////////////////////////////////////////////////
+    /// Connect
 
     @Override
     public void onDeviceConnected(BluetoothGatt gatt) {
-        mCharacteristicMap = new MokoCharacteristicHandler().getCharacteristics(gatt);
+        if (mCharacteristicMap.get(gatt.getDevice().getAddress()) == null) {
+            mCharacteristicMap.put(gatt.getDevice().getAddress(), new MokoCharacteristicHandler().getCharacteristics(gatt));
+        }
         ConnectStatusEvent connectStatusEvent = new ConnectStatusEvent();
         connectStatusEvent.setAction(MokoConstants.ACTION_DISCOVER_SUCCESS);
+        connectStatusEvent.setBluetoothDevice(gatt.getDevice());
         EventBus.getDefault().post(connectStatusEvent);
     }
 
     @Override
     public void onDeviceDisconnected(BluetoothDevice device) {
+        mCharacteristicMap.remove(device.getAddress());
         ConnectStatusEvent connectStatusEvent = new ConnectStatusEvent();
         connectStatusEvent.setAction(MokoConstants.ACTION_DISCONNECTED);
+        connectStatusEvent.setBluetoothDevice(device);
         EventBus.getDefault().post(connectStatusEvent);
     }
 
     @Override
-    public BluetoothGattCharacteristic getCharacteristic(Enum orderCHAR) {
-        return mCharacteristicMap.get(orderCHAR);
+    public BluetoothGattCharacteristic getCharacteristic(String address, Enum orderCHAR) {
+        return mCharacteristicMap.get(address).get(orderCHAR);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // order
-    ///////////////////////////////////////////////////////////////////////////
+    public ArrayList<String> getConnectedDeviceList() {
+        return new ArrayList<>(mCharacteristicMap.keySet());
+    }
+
+    /// OrderTask
 
     @Override
-    public boolean isCHARNull() {
+    public boolean isCHARNull(String address) {
         if (mCharacteristicMap == null || mCharacteristicMap.isEmpty()) {
-            disConnectBle();
+            disConnectBle(address);
             return true;
         }
         return false;
@@ -124,7 +133,7 @@ public final class EmptyMokoSupport extends MokoBleLib {
     }
 
     @Override
-    public boolean orderNotify(BluetoothGattCharacteristic characteristic, byte[] value) {
+    public boolean orderNotify(BluetoothDevice device, BluetoothGattCharacteristic characteristic, byte[] value) {
         final UUID responseUUID = characteristic.getUuid();
         OrderCHAR orderCHAR = null;
         if (responseUUID.equals(OrderCHAR.CHAR_PARAMS.getUuid())) {
@@ -136,6 +145,7 @@ public final class EmptyMokoSupport extends MokoBleLib {
         OrderTaskResponse response = new OrderTaskResponse();
         response.orderCHAR = OrderCHAR.CHAR_PARAMS;
         response.responseValue = value;
+        response.address = device.getAddress();
         OrderTaskResponseEvent event = new OrderTaskResponseEvent();
         event.setAction(MokoConstants.ACTION_CURRENT_DATA);
         event.setResponse(response);

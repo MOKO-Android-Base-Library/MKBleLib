@@ -9,6 +9,7 @@ import com.elvishew.xlog.XLog;
 import com.moko.ble.lib.utils.MokoUtils;
 
 import androidx.annotation.NonNull;
+
 import no.nordicsemi.android.ble.BleManager;
 import no.nordicsemi.android.ble.observer.ConnectionObserver;
 
@@ -52,22 +53,22 @@ public abstract class MokoBleManager extends BleManager implements ConnectionObs
         protected void onCharacteristicWrite(@NonNull BluetoothGatt gatt, @NonNull BluetoothGattCharacteristic characteristic) {
             XLog.e("onCharacteristicWrite");
             XLog.e("device to app : " + MokoUtils.bytesToHexString(characteristic.getValue()));
-            write(characteristic, characteristic.getValue());
+            write(gatt, characteristic, characteristic.getValue());
         }
 
         @Override
         protected void onCharacteristicRead(@NonNull BluetoothGatt gatt, @NonNull BluetoothGattCharacteristic characteristic) {
             XLog.e("onCharacteristicRead");
             XLog.e("device to app : " + MokoUtils.bytesToHexString(characteristic.getValue()));
-            read(characteristic, characteristic.getValue());
+            read(gatt, characteristic, characteristic.getValue());
         }
     }
 
     public abstract boolean checkServiceCharacteristicSupported(BluetoothGatt gatt);
 
-    public abstract void write(BluetoothGattCharacteristic characteristic, byte[] value);
+    public abstract void write(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value);
 
-    public abstract void read(BluetoothGattCharacteristic characteristic, byte[] value);
+    public abstract void read(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value);
 
     public abstract void init();
 }

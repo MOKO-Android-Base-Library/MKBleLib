@@ -6,11 +6,11 @@ import android.bluetooth.BluetoothGattCharacteristic;
 
 public interface MokoResponseCallback {
 
-    void onCharacteristicChanged(BluetoothGattCharacteristic characteristic, byte[] value);
+    void onCharacteristicChanged(BluetoothDevice device, BluetoothGattCharacteristic characteristic, byte[] value);
 
-    void onCharacteristicWrite(BluetoothGattCharacteristic characteristic, byte[] value);
+    void onCharacteristicWrite(BluetoothDevice device, BluetoothGattCharacteristic characteristic, byte[] value);
 
-    void onCharacteristicRead(BluetoothGattCharacteristic characteristic, byte[] value);
+    void onCharacteristicRead(BluetoothDevice device, BluetoothGattCharacteristic characteristic, byte[] value);
 
     void onServicesDiscovered(BluetoothGatt gatt);
 

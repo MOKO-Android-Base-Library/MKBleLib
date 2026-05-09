@@ -19,7 +19,6 @@ final class MokoBleConfig extends MokoBleManager {
 
     private MokoResponseCallback mMokoResponseCallback;
     private BluetoothGattCharacteristic paramsCharacteristic;
-
     private BluetoothGatt gatt;
 
     public MokoBleConfig(@NonNull Context context, MokoResponseCallback callback) {
@@ -39,12 +38,13 @@ final class MokoBleConfig extends MokoBleManager {
     }
 
     @Override
-    public void write(BluetoothGattCharacteristic characteristic, byte[] value) {
+    public void write(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value) {
+        mMokoResponseCallback.onCharacteristicWrite(gatt.getDevice(), characteristic, value);
     }
 
     @Override
-    public void read(BluetoothGattCharacteristic characteristic, byte[] value) {
-        mMokoResponseCallback.onCharacteristicRead(characteristic, value);
+    public void read(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value) {
+        mMokoResponseCallback.onCharacteristicRead(gatt.getDevice(), characteristic, value);
     }
 
     @Override
@@ -91,7 +91,7 @@ final class MokoBleConfig extends MokoBleManager {
             final byte[] value = data.getValue();
             XLog.e("onDataReceived");
             XLog.e("device to app : " + MokoUtils.bytesToHexString(value));
-            mMokoResponseCallback.onCharacteristicChanged(paramsCharacteristic, value);
+            mMokoResponseCallback.onCharacteristicChanged(device, paramsCharacteristic, value);
         });
         enableNotifications(paramsCharacteristic).done(device -> {
             mMokoResponseCallback.onServicesDiscovered(gatt);
